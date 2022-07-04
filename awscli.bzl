@@ -4,19 +4,31 @@ AWSCLI_VERSIONS = {
     "macos-x86_64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
 }
 
-def _awscli_download_impl(ctx):
-    arch = ""
-    if ctx.attr.arch == "amd64":
-        arch = "x86_64"
-    elif ctx.attr.arch == "arm64":
-        arch = "aarch64"
-    else:
-        fail("Unsupported arch: {}".format(ctx.attr.arch))
+def os_arch(repository_ctx):
+    os_name = repository_ctx.os.name.lower()
 
-    os_arch_version = "{}-{}-{}".format(ctx.attr.os, arch, ctx.attr.version)
+    # On Windows, only x86_64 is supported.
+    if os_name.find("windows") != -1:
+        return ("windows", "x86_64")
+
+    arch = repository_ctx.execute(["uname", "-m"]).stdout.strip()
+    if os_name.startswith("mac os"):
+        if arch == "x86_64" or arch == "arm64":
+            return ("darwin", arch)
+    elif os_name.startswith("linux"):
+        if arch == "x86_64" or arch == "arm64":
+            return ("linux", arch)
+
+    fail("Unsupported OS {} and architecture {}".format(os_name, arch))
+
+
+def _awscli_download_impl(ctx):
+    os, arch = os_arch(ctx)
+
+    os_arch_version = "{}-{}-{}".format(os, arch, ctx.attr.version)
 
     ctx.report_progress("Downloading")
-    if ctx.attr.os == "linux":
+    if os == "linux":
         url = "https://awscli.amazonaws.com/awscli-exe-{}.zip".format(os_arch_version)
         ctx.download_and_extract(
             url,
@@ -30,7 +42,7 @@ def _awscli_download_impl(ctx):
             quiet=False,
             working_directory=".",
         )
-    elif ctx.attr.os == "darwin":
+    elif os == "darwin":
         url = "https://awscli.amazonaws.com/AWSCLIV2-{}.pkg".format(ctx.attr.version)
         ctx.download(
             url,
@@ -59,7 +71,8 @@ def _awscli_download_impl(ctx):
             working_directory=".",
         )
     else:
-        fail("Unsupported OS: {}".format(ctx.attr.os))
+        # TODO: add Windows support.
+        fail("Unsupported OS: {}".format(os))
     ctx.report_progress("Installed awscli {}\n{}\n{}".format(result.return_code, result.stdout, result.stderr))
 
     ctx.template(
@@ -73,16 +86,6 @@ def _awscli_download_impl(ctx):
 awscli_download = repository_rule(
     implementation = _awscli_download_impl,
     attrs = {
-        "os": attr.string(
-            values = ["darwin", "linux", "windows"],
-            default = "linux",
-            doc = "Host operating system",
-        ),
-        "arch": attr.string(
-            values = ["amd64", "arm64"],
-            default = "amd64",
-            doc = "Host architecture",
-        ),
         "version": attr.string(
             default = "2.7.12",
             doc = "AWS CLI version",
