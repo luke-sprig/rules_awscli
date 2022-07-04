@@ -1,7 +1,7 @@
 AWSCLI_VERSIONS = {
     "linux-x86_64-2.7.12": "b03e475a0889465bda250f620bec7854e19681a6443bad4f2257a11cc9638564",
-    "macos-arm64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
-    "macos-x86_64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
+    "darwin-arm64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
+    "darwin-x86_64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
 }
 
 def os_arch(repository_ctx):
