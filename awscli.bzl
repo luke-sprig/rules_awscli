@@ -11,7 +11,7 @@ def _awscli_download_impl(ctx):
     elif ctx.attr.arch == "arm64":
         arch = "aarch64"
     else:
-        fail("Unsupported arch: {} {}".format(ctx.attr.arch))
+        fail("Unsupported arch: {}".format(ctx.attr.arch))
 
     os_arch_version = "{}-{}-{}".format(ctx.attr.os, arch, ctx.attr.version)
 
