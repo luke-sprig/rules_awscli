@@ -45,7 +45,8 @@ def _awscli_download_impl(ctx):
     elif os == "darwin":
         url = "https://awscli.amazonaws.com/AWSCLIV2-{}.pkg".format(ctx.attr.version)
         ctx.download(
-            url,
+            url = url,
+            output = "AWSCLIv2-{}.pkg".format(ctx.attr.version),
             sha256 = AWSCLI_VERSIONS[os_arch_version],
         )
         ctx.report_progress("Installing")
