@@ -1,0 +1,6 @@
+sh_binary(
+    name = "awscli_run",
+    srcs = ["@awscli//:awscli"],
+    data = [],
+    args = ["--version"],
+)
