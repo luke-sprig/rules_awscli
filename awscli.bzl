@@ -12,11 +12,13 @@ def os_arch(repository_ctx):
         return ("windows", "x86_64")
 
     arch = repository_ctx.execute(["uname", "-m"]).stdout.strip()
+    if arch == "arm64":
+        arch = "aarch64"
     if os_name.startswith("mac os"):
-        if arch == "x86_64" or arch == "arm64":
+        if arch == "x86_64" or arch == "aarch64":
             return ("darwin", arch)
     elif os_name.startswith("linux"):
-        if arch == "x86_64" or arch == "arm64":
+        if arch == "x86_64" or arch == "aarch64":
             return ("linux", arch)
 
     fail("Unsupported OS {} and architecture {}".format(os_name, arch))
