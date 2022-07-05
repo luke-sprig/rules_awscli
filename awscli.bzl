@@ -51,7 +51,8 @@ def _awscli_download_impl(ctx):
             output = "AWSCLIv2-{}.pkg".format(ctx.attr.version),
             sha256 = AWSCLI_VERSIONS[os_arch_version],
         )
-        ctx.report_progress("Installing")
+        ls = ctx.execute(["find", install_dir, "-name", "\"*\""]).stdout.strip()
+        ctx.report_progress("Installing, current files: {}".format(ls))
         ctx.template(
             "install.xml",
             ctx.attr._darwin_install_tpl,
