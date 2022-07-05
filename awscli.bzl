@@ -57,7 +57,7 @@ def _awscli_download_impl(ctx):
             "install.xml",
             ctx.attr._darwin_install_tpl,
             substitutions={
-                "install_dir": install_dir,
+                "{install_dir}": install_dir,
             },
         )
         result = ctx.execute([
