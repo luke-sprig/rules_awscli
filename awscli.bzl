@@ -29,6 +29,8 @@ def _awscli_download_impl(ctx):
 
     install_dir = str(ctx.path("."))
 
+    awscli = ""
+
     ctx.report_progress("Downloading")
     if os == "linux":
         url = "https://awscli.amazonaws.com/awscli-exe-{}.zip".format(os_arch_version)
@@ -44,6 +46,7 @@ def _awscli_download_impl(ctx):
             quiet=False,
             working_directory=install_dir,
         )
+        awscli = "v2/{version}/bin/aws".format(version=ctx.attr.version)
     elif os == "darwin":
         url = "https://awscli.amazonaws.com/AWSCLIV2-{}.pkg".format(ctx.attr.version)
         ctx.download(
@@ -51,8 +54,7 @@ def _awscli_download_impl(ctx):
             output = "AWSCLIv2-{}.pkg".format(ctx.attr.version),
             sha256 = AWSCLI_VERSIONS[os_arch_version],
         )
-        ls = ctx.execute(["find", install_dir, "-name", "\"*\""]).stdout.strip()
-        ctx.report_progress("Installing, current files: {}".format(ls))
+        ctx.report_progress("Installing")
         ctx.template(
             "install.xml",
             ctx.attr._darwin_install_tpl,
@@ -73,6 +75,7 @@ def _awscli_download_impl(ctx):
             quiet=False,
             working_directory=install_dir,
         )
+        awscli = "aws-cli/aws".format(install_dir)
     else:
         # TODO: add Windows support.
         fail("Unsupported OS: {}".format(os))
@@ -82,6 +85,7 @@ def _awscli_download_impl(ctx):
         "BUILD.bazel",
         ctx.attr._build_tpl,
         substitutions = {
+            "{awscli}": awscli,
             "{version}": ctx.attr.version,
         },
     )
