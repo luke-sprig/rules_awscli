@@ -1,8 +1,12 @@
+load("@bazel_skylib//lib:paths.bzl", "paths")
+
+
 AWSCLI_VERSIONS = {
     "linux-aarch64-2.7.12": "a43dfb19889930652b849d14bc0234bf0165b36e525cff01da7f447a28890f09",
     "linux-x86_64-2.7.12": "b03e475a0889465bda250f620bec7854e19681a6443bad4f2257a11cc9638564",
     "darwin-x86_64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
 }
+
 
 def os_arch(repository_respository_ctx):
     os_name = repository_respository_ctx.os.name.lower()
@@ -31,6 +35,8 @@ def _awscli_download_impl(respository_ctx):
 
     install_dir = str(respository_ctx.path("."))
 
+    bin_dir = paths.join(install_dir, "bin")
+
     awscli = ""
 
     respository_ctx.report_progress("Downloading")
@@ -42,7 +48,7 @@ def _awscli_download_impl(respository_ctx):
         )
         respository_ctx.report_progress("Installing")
         result = respository_ctx.execute(
-            [install_dir + "/aws/install", "-i", install_dir],
+            [install_dir + "/aws/install", "-i", install_dir, "-b", bin_dir],
             timeout=600,
             environment={},
             quiet=False,
