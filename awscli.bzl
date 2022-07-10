@@ -4,14 +4,14 @@ AWSCLI_VERSIONS = {
     "darwin-x86_64-2.7.12": "493d9992dc9ba7df36db73e9ac94a0726c3db24c58cb881fb2c10de9b63a164b",
 }
 
-def os_arch(repository_ctx):
-    os_name = repository_ctx.os.name.lower()
+def os_arch(repository_respository_ctx):
+    os_name = repository_respository_ctx.os.name.lower()
 
     # On Windows, only x86_64 is supported.
     if os_name.find("windows") != -1:
         return ("windows", "x86_64")
 
-    arch = repository_ctx.execute(["uname", "-m"]).stdout.strip()
+    arch = repository_respository_ctx.execute(["uname", "-m"]).stdout.strip()
     if arch == "arm64":
         arch = "aarch64"
     if os_name.startswith("mac os"):
@@ -24,50 +24,50 @@ def os_arch(repository_ctx):
     fail("Unsupported OS {} and architecture {}".format(os_name, arch))
 
 
-def _awscli_download_impl(ctx):
-    os, arch = os_arch(ctx)
+def _awscli_download_impl(respository_ctx):
+    os, arch = os_arch(respository_ctx)
 
-    os_arch_version = "{}-{}-{}".format(os, arch, ctx.attr.version)
+    os_arch_version = "{}-{}-{}".format(os, arch, respository_ctx.attr.version)
 
-    install_dir = str(ctx.path("."))
+    install_dir = str(respository_ctx.path("."))
 
     awscli = ""
 
-    ctx.report_progress("Downloading")
+    respository_ctx.report_progress("Downloading")
     if os == "linux":
         url = "https://awscli.amazonaws.com/awscli-exe-{}.zip".format(os_arch_version)
-        ctx.download_and_extract(
+        respository_ctx.download_and_extract(
             url,
             sha256 = AWSCLI_VERSIONS[os_arch_version],
         )
-        ctx.report_progress("Installing")
-        result = ctx.execute(
+        respository_ctx.report_progress("Installing")
+        result = respository_ctx.execute(
             [install_dir + "/aws/install", "-i", install_dir],
             timeout=600,
             environment={},
             quiet=False,
             working_directory=install_dir,
         )
-        awscli = "v2/{version}/bin/aws".format(version=ctx.attr.version)
+        awscli = "v2/{version}/bin/aws".format(version=respository_ctx.attr.version)
     elif os == "darwin":
-        url = "https://awscli.amazonaws.com/AWSCLIV2-{}.pkg".format(ctx.attr.version)
-        ctx.download(
+        url = "https://awscli.amazonaws.com/AWSCLIV2-{}.pkg".format(respository_ctx.attr.version)
+        respository_ctx.download(
             url = url,
-            output = "AWSCLIv2-{}.pkg".format(ctx.attr.version),
+            output = "AWSCLIv2-{}.pkg".format(respository_ctx.attr.version),
             sha256 = AWSCLI_VERSIONS[os_arch_version],
         )
-        ctx.report_progress("Installing")
-        ctx.template(
+        respository_ctx.report_progress("Installing")
+        respository_ctx.template(
             "install.xml",
-            ctx.attr._darwin_install_tpl,
+            respository_ctx.attr._darwin_install_tpl,
             substitutions={
                 "{install_dir}": install_dir,
             },
         )
-        result = ctx.execute([
+        result = respository_ctx.execute([
             "installer",
              "-pkg",
-             "AWSCLIV2-{}.pkg".format(ctx.attr.version),
+             "AWSCLIV2-{}.pkg".format(respository_ctx.attr.version),
              "-target",
             "CurrentUserHomeDirectory",
             "-applyChoiceChangesXML",
@@ -81,14 +81,14 @@ def _awscli_download_impl(ctx):
     else:
         # TODO: add Windows support.
         fail("Unsupported OS: {}".format(os))
-    ctx.report_progress("Installed awscli {}\n{}\n{}".format(result.return_code, result.stdout, result.stderr))
+    respository_ctx.report_progress("Installed awscli {}\n{}\n{}".format(result.return_code, result.stdout, result.stderr))
 
-    ctx.template(
+    respository_ctx.template(
         "BUILD.bazel",
-        ctx.attr._build_tpl,
+        respository_ctx.attr._build_tpl,
         substitutions = {
             "{awscli}": awscli,
-            "{version}": ctx.attr.version,
+            "{version}": respository_ctx.attr.version,
         },
     )
 
