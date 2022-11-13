@@ -91,7 +91,7 @@ def _awscli_download_impl(respository_ctx):
 
     respository_ctx.symlink(awscli, "awscli")
 
-    respository_ctx.file("BUILD.bazel", "")
+    respository_ctx.file("BUILD.bazel", "exports_files([\"awscli\"])")
 
 awscli_download = repository_rule(
     implementation = _awscli_download_impl,
