@@ -89,14 +89,9 @@ def _awscli_download_impl(respository_ctx):
         fail("Unsupported OS: {}".format(os))
     respository_ctx.report_progress("Installed awscli {}\n{}\n{}".format(result.return_code, result.stdout, result.stderr))
 
-    respository_ctx.template(
-        "BUILD.bazel",
-        respository_ctx.attr._build_tpl,
-        substitutions = {
-            "{awscli}": awscli,
-            "{version}": respository_ctx.attr.version,
-        },
-    )
+    respository_ctx.symlink(awscli, "awscli")
+
+    respository_ctx.file("BUILD.bazel", "")
 
 awscli_download = repository_rule(
     implementation = _awscli_download_impl,
