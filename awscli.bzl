@@ -35,7 +35,7 @@ def _awscli_download_impl(respository_ctx):
 
     install_dir = str(respository_ctx.path("."))
 
-    bin_dir = paths.join(install_dir, "bin")
+    bin_dir = paths.join(install_dir, "local/bin")
 
     awscli = ""
 
