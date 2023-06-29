@@ -34,9 +34,9 @@ def _awscli_download_impl(respository_ctx):
 
     os_arch_version = "{}-{}-{}".format(os, arch, respository_ctx.attr.version)
 
-    install_dir = str(respository_ctx.path("."))
+    install_dir = str(respository_ctx.path("./local"))
 
-    bin_dir = paths.join(install_dir, "local/bin")
+    bin_dir = paths.join(install_dir, "bin")
 
     awscli = ""
 
