@@ -19,8 +19,9 @@ def os_arch(repository_respository_ctx):
     if arch == "arm64":
         arch = "aarch64"
     if os_name.startswith("mac os"):
-        if arch == "x86_64":
-            return ("darwin", arch)
+        # we have to force this to x86_64 for now because there is no binary equivalent for m1
+        if arch in ("x86_64", "aarch64"):
+            return ("darwin", "x86_64")
     elif os_name.startswith("linux"):
         if arch == "x86_64" or arch == "aarch64":
             return ("linux", arch)
